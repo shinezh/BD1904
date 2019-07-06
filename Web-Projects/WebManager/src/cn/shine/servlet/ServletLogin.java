@@ -46,7 +46,7 @@ public class ServletLogin extends HttpServlet {
 			request.setAttribute("name", uname);
 			HttpSession session = request.getSession();
 			session.setAttribute("name", uname);
-			response.sendRedirect("success.jsp");
+			request.getRequestDispatcher("/WEB-INF/jsp/success.jsp").forward(request,response);
 
 		} else {
 			//登陆失败

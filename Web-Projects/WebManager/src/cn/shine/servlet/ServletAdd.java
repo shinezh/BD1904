@@ -39,10 +39,10 @@ public class ServletAdd extends HttpServlet {
 
 		PrintWriter out = response.getWriter();
 		if (addTag) {
-			out.print("<script>alert('操作成功!');window.location.href='success.jsp'</script>");
+			out.print("<script>alert('操作成功!');javascript:history.back(-1);</script>");
 			out.close();
 		} else {
-			out.print("<script>alert('操作失败!');window.location.href='success.jsp'</script>");
+			out.print("<script>alert('操作失败!');javascript:history.back(-1);</script>");
 			out.close();
 		}
 

@@ -34,7 +34,7 @@ public class ServletGetall extends HttpServlet {
 
 			//记录所有学生信息
 			request.setAttribute("list", list);
-			request.getRequestDispatcher("database.jsp").forward(request,response);
+			request.getRequestDispatcher("WEB-INF/jsp/database.jsp").forward(request,response);
 
 		}catch (Exception e){
 			out.print("<script>alert('查询失败!');window.location.href='login.jsp'</script>");
