@@ -21,6 +21,7 @@
 
 <%
     List<Student> list = (List<Student>) request.getAttribute("list");
+
 %>
 
 <body>
@@ -35,6 +36,11 @@
                 <th>密码</th>
             </tr>
             <%
+                if (list == null)
+                    out.print("<script>alert('数据库无信息。');javascript:history.back(-1);</script>");
+                else {
+                    out.print("<script>alert('查询成功。');</script>");
+                }
 
                 for (int i = 0; i < list.size(); i++) {
             %>
@@ -51,7 +57,7 @@
             <%}%>
         </table>
         <p></p>
-        <input style="width: 500px" class="submit_button" type="button" name="return" value="返回主页面" onclick="location='success.jsp'">
+        <input style="width: 500px" class="submit_button" type="button" name="return" value="返回主页面" onclick="javascript:history.back(-1);">
     </div>
 
 
