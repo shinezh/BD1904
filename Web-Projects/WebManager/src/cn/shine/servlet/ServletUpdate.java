@@ -25,7 +25,7 @@ public class ServletUpdate extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 
 		//初始化服务类对象
-		StudentService stuService = (StudentService) request.getSession().getAttribute("stuService");
+		StudentService stuService = BeanFactory.getStuService();
 
 
 

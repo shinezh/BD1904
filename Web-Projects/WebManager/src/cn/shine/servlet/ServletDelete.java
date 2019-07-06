@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.beancontext.BeanContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.http.HttpResponse;
@@ -27,7 +28,7 @@ public class ServletDelete extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 
 		//初始化服务类对象
-		StudentService stuService = (StudentService) request.getSession().getAttribute("stuService");
+		StudentService stuService = BeanFactory.getStuService();
 
 
 

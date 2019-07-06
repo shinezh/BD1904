@@ -76,6 +76,9 @@ public class StudentDaoImpl implements StudentDao {
 			if (pst!=null){
 				pst.close();
 			}
+			if(connection!=null){
+				connection.close();
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("关闭异常"+e.getMessage());
 		}

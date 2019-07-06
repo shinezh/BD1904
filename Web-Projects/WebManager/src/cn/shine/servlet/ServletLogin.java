@@ -34,8 +34,8 @@ public class ServletLogin extends HttpServlet {
 		String passwd = request.getParameter("passwd");
 		//调用后台数据
 		StudentDao dao = new StudentDaoImpl();
-		//查询所有学生信息
-		List<Student> list = dao.getStudent();
+
+
 
 		//判断登陆
 		boolean flag = dao.login(uname, passwd);
@@ -46,13 +46,7 @@ public class ServletLogin extends HttpServlet {
 			request.setAttribute("name", uname);
 			HttpSession session = request.getSession();
 			session.setAttribute("name", uname);
-			//记录所有学生信息
-			request.setAttribute("list", list);
-			request.getRequestDispatcher("success.jsp").forward(request, response);
-
-			//初始化一个服务类对象，先传递到success.jsp  then -> other servlet
-			StudentService stuService = BeanFactory.getStuService();
-			request.setAttribute("stuService",stuService);
+			response.sendRedirect("success.jsp");
 
 		} else {
 			//登陆失败
