@@ -38,4 +38,6 @@ public interface StudentService {
 	boolean addInfo(Student stu);
 
 	Student selById(int sid);
+
+	boolean login(String uname,String pass);
 }

@@ -1,8 +1,5 @@
 package cn.shine.servlet;
 
-import cn.shine.dao.StudentDao;
-import cn.shine.dao.impl.StudentDaoImpl;
-import cn.shine.entity.Student;
 import cn.shine.framework.BeanFactory;
 import cn.shine.service.StudentService;
 
@@ -14,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 @WebServlet(name = "ServletLogin", urlPatterns = "/ServletLogin")
 public class ServletLogin extends HttpServlet {
@@ -33,12 +29,11 @@ public class ServletLogin extends HttpServlet {
 		String uname = request.getParameter("uname");
 		String passwd = request.getParameter("passwd");
 		//调用后台数据
-		StudentDao dao = new StudentDaoImpl();
-
+		StudentService stuService = BeanFactory.getStuService();
 
 
 		//判断登陆
-		boolean flag = dao.login(uname, passwd);
+		boolean flag = stuService.login(uname, passwd);
 		if (flag) {
 			System.out.println("Login success");
 			//登陆成功
@@ -46,7 +41,7 @@ public class ServletLogin extends HttpServlet {
 			request.setAttribute("name", uname);
 			HttpSession session = request.getSession();
 			session.setAttribute("name", uname);
-			request.getRequestDispatcher("/WEB-INF/jsp/success.jsp").forward(request,response);
+			request.getRequestDispatcher("/WEB-INF/jsp/success.jsp").forward(request, response);
 
 		} else {
 			//登陆失败

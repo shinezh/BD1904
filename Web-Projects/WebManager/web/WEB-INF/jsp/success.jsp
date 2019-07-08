@@ -119,8 +119,8 @@
             </form>
         </div>
         <p></p>
-        <input class="submit_button" type="button" name="exit_button" value="退出登录"
-               onclick="location='login.jsp';<% session.invalidate();%>">
+        <input class="submit_button" type="button" name="exit_button" style="background-color: crimson;color: #f6f6f6" value="退出登录"
+               onclick="window.location.href='logout.jsp';"%>
     </div>
 </div>
 

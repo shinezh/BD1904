@@ -196,4 +196,35 @@ public class StudentServiceImpl implements StudentService {
 		}
 
 	}
+
+	@Override
+	public boolean login(String uname,String pass) {
+		boolean tag = false;
+		String sql = "select passwd from student where sname=? ";
+		try {
+			pst = connection.prepareStatement(sql);
+			pst.setString(1,uname);
+			rs = pst.executeQuery();
+			while (rs.next()){
+				if (rs.getString("passwd").equals(pass)){
+					tag = true;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		TranscationManager.releaseAll();
+		try {
+			if (rs != null) {
+				rs.close();
+			}
+			if (pst != null) {
+				pst.close();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+		}
+		return tag;
+	}
 }
