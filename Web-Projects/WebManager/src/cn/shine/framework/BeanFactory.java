@@ -20,6 +20,7 @@ public class BeanFactory {
 
 	/**
 	 * 通过工厂获取服务层对象
+	 *
 	 * @return 服务对象
 	 */
 	public static StudentService getStuService() {

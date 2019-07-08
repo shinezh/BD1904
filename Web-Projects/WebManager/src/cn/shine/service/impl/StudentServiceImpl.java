@@ -54,7 +54,7 @@ public class StudentServiceImpl implements StudentService {
 					pst.close();
 				}
 			} catch (Exception e) {
-				throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+				throw new RuntimeException("释放资源异常" + e.getMessage());
 			}
 		}
 	}
@@ -110,7 +110,7 @@ public class StudentServiceImpl implements StudentService {
 					pst.close();
 				}
 			} catch (Exception e) {
-				throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+				throw new RuntimeException("释放资源异常" + e.getMessage());
 			}
 		}
 	}
@@ -123,7 +123,6 @@ public class StudentServiceImpl implements StudentService {
 		stu = selById(id);
 		if (stu != null) {
 			System.out.println("主键重复，请更改数据后重新更新。");
-			System.out.println("程序退出");
 			return false;
 		}
 		try {
@@ -154,7 +153,7 @@ public class StudentServiceImpl implements StudentService {
 					pst.close();
 				}
 			} catch (Exception e) {
-				throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+				throw new RuntimeException("释放资源异常" + e.getMessage());
 			}
 		}
 	}
@@ -191,7 +190,7 @@ public class StudentServiceImpl implements StudentService {
 					pst.close();
 				}
 			} catch (Exception e) {
-				throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+				throw new RuntimeException("释放资源异常" + e.getMessage());
 			}
 		}
 
@@ -223,7 +222,7 @@ public class StudentServiceImpl implements StudentService {
 				pst.close();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("释放资源rs&pst异常" + e.getMessage());
+			throw new RuntimeException("释放资源异常" + e.getMessage());
 		}
 		return tag;
 	}
