@@ -18,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.LinkedList;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class MyDataSource implements DataSource {
@@ -27,10 +28,18 @@ public class MyDataSource implements DataSource {
 	 */
 
 	private static LinkedList<Connection> linkedlist = new LinkedList<Connection>();
-	private static String driver = "com.mysql.cj.jdbc.Driver";
-	private static String url = "jdbc:mysql:///db1904?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-	private static String username = "root";
-	private static String password = "mysql";
+	/**
+	 * 读取jdbc配置文件
+	 */
+	private static ResourceBundle bundle = ResourceBundle.getBundle("jdbc");
+	private static String driver = bundle.getString("jdbc.driver");
+	private static String url =bundle.getString("jdbc.url");
+	private static String username = bundle.getString("jdbc.username");
+	private static String password = bundle.getString("jdbc.password");
+
+	/**
+	 * 连接池初始大小
+	 */
 	private static int jdbcConnectionInitSize = 5;
 
 	static {
@@ -53,7 +62,7 @@ public class MyDataSource implements DataSource {
 		if (linkedlist.size() > 0) {
 			//从连接池中取出一个连接调用
 			Connection conn = linkedlist.removeFirst();
-			return  (Connection) Proxy.newProxyInstance(conn.getClass().getClassLoader(), conn.getClass().getInterfaces(), new InvocationHandler() {
+			return (Connection) Proxy.newProxyInstance(conn.getClass().getClassLoader(), conn.getClass().getInterfaces(), new InvocationHandler() {
 				@Override
 				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 					if ("close".equals(method.getName())) {
