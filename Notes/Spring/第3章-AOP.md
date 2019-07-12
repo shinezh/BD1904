@@ -38,11 +38,12 @@
 
 ### pointcut 切入点
 
-- 已经添加了增强代码方法
+- 已经添加了增强代码方法；是指我们要对哪些连接点进行拦截的定义；
 
 ### advice 通知
 
 - 实现特定接口的增强代码类
+- 前置通知、后置通知、环绕通知、异常通知、最终通知
 
 ### aspect 切面
 
@@ -93,6 +94,84 @@
     </aop:config>
 </beans>
 ```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--配置service-->
+    <bean id="customerService" class="cn.shine.service.impl.ICustomerServiceImpl">
+    </bean>
+    <!--基于xml的aop配置-->
+    <!--1、把通知类交给spring管理-->
+    <bean id="logger" class="cn.shine.service.utils.Logger">
+    </bean>
+
+    <!--2、导入aop名称空间，并且使用aop：config开始aop的配置-->
+    <aop:config>
+        <!--3、使用aop：aspect配置切面，
+			id属性用于给切面提供一个唯一标识，
+		ref属性 用于应用通知bean的id-->
+        <aop:aspect id="logAdvice" ref="logger">
+            <!--4、配置通知的类型，指定增强的方法何时执行
+                method属性：用于指定的增强方法名称
+                pointcut属性：用于指定切入点表达式
+                    关键字：execution表达式
+                    写法：访问修饰符 返回值 包名.包名...类名.方法名（参数列表）
+                -->
+            <aop:before method="printLog" pointcut="execution(public void cn.shine.service.impl.ICustomerServiceImpl.saveCustomer())"/>
+        </aop:aspect>
+    </aop:config>
+```
+
+- 前置通知
+
+- 后置通知
+
+- 异常通知
+
+- 最终通知
+
+- 环绕通知：直接配置环绕通知，切入点方法没有执行，而环绕通知里面的方法执行了；
+
+  - 由动态代理可知，环绕通知指的是invoke方法，并且有明确的切入点方法调用
+
+  - spring为我们提供了一个接口，ProceedingJionPoint.该接口可以作为环绕通知的方法参数来使用
+
+    该接口中有一个方法 proceed()  相当于method.invoke(),，就是明确调调用业务层的核心方法（切入点方法）
+
+  - **环绕通知**是spring框架为我们提供的一种可以在代码中手动控制通知方法什么时候执行的方式；
+
+  ```java
+   /**
+   * 环绕通知
+   * @return null
+   */
+  public Object aroundPrintLog(ProceedingJoinPoint pjp){
+      Object proceed = null;
+      try {
+          System.out.println("前置");
+          proceed = pjp.proceed();
+          System.out.println("后置");
+      } catch (Throwable throwable) {
+          System.out.println("异常");
+          throwable.printStackTrace();
+      }finally {
+          System.out.println("最终");
+      }
+      return proceed;
+  }
+  ```
+
+  
+
+
+## 注解AOP
 
 
 

@@ -12,7 +12,7 @@
 
 #ignore folders
 /Web-Projects/WebManager/web/WEB-INF/class/*
-
+/Web-Projects/out/*
 # Package Files #
 *.jar
 *.war
