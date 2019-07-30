@@ -1,3 +1,5 @@
+
+
 # Hadoop
 
 ## 什么是Hadoop
@@ -170,19 +172,23 @@
 
 ## HDFS
 
+### 设计思想
+
 - 分而治之：大文件分布存储到各个几点
   - 分散存储
   - 冗余备份
 
-### hdfs架构
+### hdfs架构（主从架构）
 
 - 适合一次写入，多次读出，不支持修改，但是支持追加；
 
+  
+
 #### namenode 主节点
 
-- 保存元数据信息，包含目录树、名称、属性等；
+- 保存元数据信息，包含目录树、名称、属性、文件块列表、块所在的节点列表等；
 - 接收客户端的请求和响应
-- 传递命令给datanode
+- 接收datanode汇报（节点状态，快状况），传递命令给datanode
 
 #### datanode 从节点
 
@@ -219,3 +225,56 @@ hdfs dfs    #运行fs的命令
 
 ```
 
+
+
+#### jar包中默认设置
+
+- core-default.xml
+- hdfs-default.xml
+- mapred-defalut.xml
+- yarn-default.cml
+
+#### 自定义配置（classpath：默认加载）
+
+- 
+
+#### 设置
+
+- 自定义设置文件不自动加载（没有使用默认名称/没有放到指定位置）
+
+  conf.addResource("")
+
+- conf.set(name,value)
+
+
+
+### FileSystem 文件系统
+
+> 代表client和hdfs的连接
+
+- 如何获得fs对象
+
+  uri：代表hdfs文件系统的访问路径（默认file:///）
+
+  conf：配置文件
+
+  FileSystem.get(uri,conf,user);
+
+- 调用api
+
+  fs.mkdirs()
+
+  fs.copyFromLocalFile()
+
+  fs.copyToLocalFile()
+
+- 关闭连接
+
+  fs.close;
+
+### 流式数据访问
+
+- fs.open()       --> InputStream
+- fs.create()     --> OutputStream
+
+- IOUtils.copyBytes()  --
