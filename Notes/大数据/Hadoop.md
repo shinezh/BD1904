@@ -106,7 +106,7 @@
           <name>dfs.namenode.secondary.http-address</name>
           <value>hdp02:50090</value>
       </property>
-  </configuration>configuration>
+  </configuration>
   ```
 
 - mapred-site.xml
@@ -124,7 +124,7 @@
   ```xml
   <property>
   	<name>yarn.resourcemanager.hostname</name>
-  	<value>hadoop04</value>
+  	<value>hdp01</value>
   </property>
   <property>
   	<name>yarn.nodemanager.aux-services</name>
@@ -132,9 +132,7 @@
   </property>
   ```
 
-  
-
-
+- 修改slaves
 
 
 
