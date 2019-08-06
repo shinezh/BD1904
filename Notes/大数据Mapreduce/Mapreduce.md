@@ -229,8 +229,9 @@ public class Driver {
 ### 文件解析
 
 - 文件加载
-  - FileInputFormat --> TextInputFormat
-
+  
+- FileInputFormat --> TextInputFormat
+  
 - 文件读取
 
   - RecordReader -->  
@@ -262,7 +263,7 @@ public class Driver {
 - 分组：将key相同的分到一组
   - WritableComparator
 
-- 局部聚合：Combiner，减少到reduce端的数据量
+- 局部聚合：Combiner，减少到reduce端的数据量，默认没有；
 
 ### !reducer
 
@@ -279,21 +280,23 @@ public class Driver {
 
 - **maptask**：运行mapper端逻辑的任务
 
-- **并行度**：有多少个maptask需要一起运行
+- **并行度**：有多少个maptask需要一起运行，**跟SPLIT相关**
   - 在进行运行的时候需要差分多少个任务
   - 一个task是job的最小单位
   - 一个task只能在一个节点运行
+- 一个`mpatask`对应一个`yarnchild`
 - **相关因素**
   - 大数据在存储时必然有数据跨节点，必然面临数据的跨节点传输，降低计算效率
   - 一个任务对应的数据，最合理的应该就是和hdfs数据存储的块的大小一致  128M
   - 这里的每一个任务只会被分配到每一个节点的一小部分资源；
   - 一个节点上可以执行多个任务--包含maptask|reducetask
 
-#### 切片（SPLIT）
+### 切片（SPLIT）
 
 - 事实上，一个mapstask任务对应的数据量是一个**切片（SPLIT）**的大小
-  - 一个切片大小理论上等于一个block块的大小；
-
+  
+- 一个切片大小理论上等于一个block块的大小；
+  
 - 切片是逻辑上的概念，代表的仅仅是一个范围的划分，针对maptask的计算
 
 - 每一个maptask对应一个逻辑切片的数据；
@@ -348,17 +351,32 @@ public class Driver {
 
     
 
-
-
-
-
-
-
 ## hadoop中的自定义类型
 
+> Hadoop中有自己的一套序列化-反序列化工具；常用类型已经实现了（8种）；
+>
+> 如果内置类型无法满足需求，需要自定义类型；
+
+- 实现`Writable`接口
+
+- 重写
+
+  - `write()`
+
+  - `readFields()`
+
+- 注意：
+  - 一定要有无参构造
+  - 一定要重写toString()，决定最终hdfs输出格
 
 
 
+### 排序
+
+> mapreduce中，默认按照key排序
+
+- Text	默认按照字典顺序排序   升序
+- 数值   默认按照数值大小排序   从小到大
 
 
 
@@ -366,3 +384,72 @@ public class Driver {
 
 
 
+
+
+## 分组
+
+分组默认调用的是`WritableComparator`
+
+分组的本质上也是一个比较的过程；
+
+默认的用于比较的方法 `compare()`
+
+分组的核心方法，分组按照 map key(WritableComparable)
+
+```java
+public int compare(WritableComparable a,WritableComparable b){
+    /*
+	底层调用的是mapkey的comparaTo()
+	排序 大小	compareTo  大于0  小于0		
+	分组 是否相等  compareTo  ==0
+    */
+    return a.compareTo(b);
+}
+```
+
+- 默认情况下，分组字段和排序的字段完全一致；
+- 当排序和分组规则不一致时，必须使用自定义分组；
+
+
+
+- 在既有分组又有排序时，分组和排序字段不一致，排序中一定要**先按照分组字段**进行排序，然后按照需要排序的字段进行排序；
+
+
+
+
+
+## Reduce中的两个坑
+
+> 参数 参数1：一组key   参数2：一组中的所有value的迭代器
+> 1）reduce中的参数2 这个迭代器只能循环遍历一次
+> 2）reduce 中的两个参数都存在  对象重用的问题
+> 	每一组   key 一个对象   values底层只有一个对象
+> 	key=hello  values=《1,1,1,1,1,1,1》
+> 	reduce(key,values,context){
+> 	}
+> 	循环遍历的过程中 每一个values的值  都会对应一个与之对应的key的值   （同一个指针）
+> 	每次循环遍历的时候  相当于对 对象 重新赋值
+
+
+
+
+
+## Combiner - 局部聚合组件
+
+- 默认没有
+- 局部聚合组件，优化组件
+- **作用：**减少shuffle过程的数据量，减少reduce端接收的数据量，提升性能；
+- **工作过程：**针对每一个maptask的输出结果，做一个局部聚合，聚合操作取决于reduce端的操作逻辑
+- **结论：**combiner的逻辑 == reducetask逻辑
+
+- 实现
+  - maptask --> combiner --> reducetask
+  - combiner接收数据来自maptask，输出数据给reducetask
+  - 类继承 Reducer\<maptask输出，reducetask输入>
+
+- 一般情况下，在实际开发中过程中，使用Reducer的代替combiner的代码；前提是reduce的代码中四个泛型前后两个泛型相同；
+
+### 使用场景
+
+- 可适用：sum max min
+- 不适用：avg直接求平均不可用，会有误差---->可以将sum&count传出，在reduce中求均值
