@@ -193,9 +193,24 @@ class MyReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
 
 
 - **实现：**将小文件加载到本地缓冲（磁盘）中，`job.addCacheFile(uri)`，将指定的路径的文件加载到每一个maptask的运行节点上；
-- 
 
+  - setup  中
+    定义一个流
+    定义一个集合
+    流开始读取   放在集合中
 
+  - map 
+    读取大文件   每次读取一行  和内存集合中的数据做关联；关联完成 写出hdfs
+
+  - 注意：
+
+    只有maptask 时候  将reducetask设置0
+
+    否则默认运行一个   Reducer   job.setNumReduceTasks(0); 
+
+    输出结果：part-m-00000
+
+    本地缓存：/home/hadoop/data/hadoopdata/nm-local-dir/filecache/10
 
 - shuffle
   - 分区：

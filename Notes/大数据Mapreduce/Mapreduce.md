@@ -445,7 +445,7 @@ public int compare(WritableComparable a,WritableComparable b){
 - 实现
   - maptask --> combiner --> reducetask
   - combiner接收数据来自maptask，输出数据给reducetask
-  - 类继承 Reducer\<maptask输出，reducetask输入>
+  - 类继承 Reducer\<maptask输出，reducetask输入>，重写reduce
 
 - 一般情况下，在实际开发中过程中，使用Reducer的代替combiner的代码；前提是reduce的代码中四个泛型前后两个泛型相同；
 
