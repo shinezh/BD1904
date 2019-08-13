@@ -43,6 +43,11 @@
 
 
 
+### 版本
+
+- **1.2.1：**现阶段，企业环境中最常用的版本；
+- **2.3.x：**支持底层的计算引擎不只是MapReduce，支持spark，tez
+
 
 
 ## hive背景
@@ -55,6 +60,7 @@
 - **hive是hadoop的另一种形式的客户端**
 - 本质上，是一个翻译器，提供sql(hql)编程，最终底层将sql语句转换为mr任务的，hive表中的数据是存储在hdfs的数据仓库
 - facebook开源的
+- 只要是能看作二位表格的结构化数据，都可以使用类似sql语法的操作去执行计算
 
 
 
@@ -64,6 +70,8 @@
 
 - 表中的数据，这个数据底层存储hdfs的；
 - **元数据：**描述表数据的数据，默认derby
+
+
 
 
 
@@ -132,8 +140,8 @@
 #### 用户接口层
 
 - cli        命令行
-- jdbc     
-- webui  可视化界面操作
+- jdbc/odbc
+- webui  可视化界面操作（hue，cdh）
 
 #### 跨语言服务平台
 
@@ -145,9 +153,9 @@
 
 - 将hql语句转化为mr任务，并进行提交
   - **解释器：**hql —— 抽象语法树
-  - **编译器：**抽象语法树 —— 逻辑执行计划
-  - **优化器：**优化逻辑执行计划
-  - **执行器：**执行最终优化结果
+  - **编译器（compiler）：**抽象语法树 —— 逻辑执行计划
+  - **优化器（optimizer）：**优化逻辑执行计划
+  - **执行器（executor）：**执行最终优化结果
 
 #### 元数据层
 
@@ -217,6 +225,8 @@
 
     - 分区表：这里的分区完全不同于mr中分区
 
+      - 纯手动，往分区插入数据，不做校验，“读模式”
+
       hive中每一个表中存储的数据海量的数据；
 
       我们在进行查询时 `select * from stu where age=19`
@@ -231,16 +241,16 @@
 
       - 分区表的表现形式：一个分区表对应一个目录
 
-    - 分桶表：
+    - **分桶表**：程序帮助我们实现，规则由我们指定；
 
       类似于mr中的分区
 
       作用：
-
+    
       - 提升抽样性能；
         - 取某一个或几个桶中的数据；
       - 提升join性能；
-        - `select * from a join b on a.id=b.id;`
+      - `select * from a join b on a.id=b.id;`
         - 如果a、b都非常大，先将其分桶，id%5；
 
       将原属数据，按照一定的规则，分成不同的文件；
@@ -254,7 +264,7 @@
       /user/hive/warehouse/haha77.db/stu/0001
 
       /user/hive/warehouse/haha77.db/stu/0002
-
+    
       **每一个分桶如何切分:**分桶字段.hash&Integer_max % 
 
 - 视图
@@ -584,4 +594,37 @@
     ```
 
   ==验证：分区数据的插入方式及分桶表的数据插入方式==
+  
+  - 插入数据到分桶表
+    - 推荐使用insert ... select...
+  
+  - **CTAS：**create table ... as select ...
+  
+    `CREATE TABLE stu_gt20 AS SELECT id,name,age FROM student WHERE AGE>20;`
 
+
+
+### hive不支持语法
+
+- delete update
+- 默认情况下，不支持笛卡尔积；
+
+
+
+#### 几种排序
+
+- order by 全局排序
+
+  - 实现原理：最终将这个sql翻译成的MR程序只是用一个reducetask
+
+- sort by   局部排序（每个reducetask的结果中排序）
+
+- distribute by  分桶 
+
+  - 有多个文件
+
+- cluster by       分桶
+
+- `distribute by (id) sort by (id) = cluster by id;`
+
+  
