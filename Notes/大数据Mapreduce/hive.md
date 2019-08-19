@@ -79,6 +79,52 @@
 
 ## hive搭建
 
+### 远程连接
+
+- 启动hive安装节点的 hiveserver2
+
+  `hiveserver2`
+
+- 修改Hadoop配置，==所有节点==
+
+  - hdfs-site.xml
+
+    ```xml
+    <property>
+    	<name>dfs.webhdfs.enabled</name>
+    	<value>true</value>
+    </property>
+    ```
+
+  - core-site.xml
+
+    ```xml
+    <property>
+        <name>hadoop.proxyuser.shineu.hosts</name>
+        <value>*</value>
+    </property>
+    
+    <property>
+        <name>hadoop.proxyuser.shineu.groups</name>
+        <value>*</value>
+    </property>
+    
+    hadoop.proxyuser.hadoop.hosts 配置成*的意义，表示任意节点使用 hadoop 集群的代理用户
+    hadoop 都能访问 hdfs 集群，hadoop.proxyuser.hadoop.groups 表示代理用户的组所属
+    ```
+
+  - 启动hiveserver2服务
+  
+    `nohup hiveserver2 >/dev/null 2>&1 &`
+  
+    `nohup hiveserver2 1>/home/hadoop/hiveserver.log 2>/home/hadoop/hiveserver.err &`
+  
+  - 启动beelin客户端
+  
+    `beeline -u jdbc:hive2://hdp01:10000 -n shineu`
+
+
+
 
 
 ## hive特点
@@ -596,8 +642,9 @@
   ==验证：分区数据的插入方式及分桶表的数据插入方式==
   
   - 插入数据到分桶表
-    - 推荐使用insert ... select...
-  
+    
+  - 推荐使用insert ... select...
+    
   - **CTAS：**create table ... as select ...
   
     `CREATE TABLE stu_gt20 AS SELECT id,name,age FROM student WHERE AGE>20;`
