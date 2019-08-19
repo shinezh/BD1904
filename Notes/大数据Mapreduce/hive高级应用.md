@@ -68,3 +68,36 @@ source FILE 在hive客户端加载脚本；
 
 #### order by 全局排序  |  sort by 局部排序
 
+
+
+
+
+#### join
+默认情况下，join过程执行的 mapjoin | reduce join
+在hive中，默认有一个表是小表的时候，执行mapjoin
+小表限制：`set hive.`
+
+
+##### mapjoin
+- 将一个小表加载到缓存中，读取到内存中map
+- map端map函数读取另一个大表，进行关联
+- 大 * 小
+
+
+## hive数据倾斜
+> 数据倾斜：
+
+### 不容易产生数据倾斜的情况
+- map join
+- sum|max|min + group by
+
+#### 哪些操作不执行MR
+- map join
+- select 原始字段
+- FILTER where, LIMIT
+
+#### 容易产生数据倾斜的情况
+- reduce join
+- group by 不和聚合函数一起
+- count(distinct) 数据量大的时候容易数据倾斜
+
