@@ -194,4 +194,73 @@ source FILE 在hive客户端加载脚本；
       	
       ```
 
-      
+
+
+### 合理的分桶
+
+> insert into 
+>
+> insert into table stu_buk
+>
+> select \* from test_shell.stu;
+
+- 提升抽样性能
+
+  age % 3
+
+  ---0	buket0
+
+  ---1	buket1
+
+  ---2	buket2
+
+  `TABLESAMPLE(BUCKET x OUT OF y)`
+
+  y：桶簇	一个或多个桶，半个桶
+
+  x：获取第几个桶簇
+
+  `select * from stu_buk tablesample(bucket 1 out of 3);`
+
+
+
+
+
+
+
+## hive重点
+
+- hql	sql
+
+- 数据存储
+
+- hive的数据组织形式：内部表、外部表、分桶表、分区表
+
+- 分区表
+
+  - 数据加载方式
+  - 动态
+  - 静态
+  - 动态分区&静态分区区别
+
+- hive查询
+
+  - 语法
+  - join
+    - 内join	inner join
+    - 外join    left join|left outer join
+    - semi join
+
+  - having
+  - where
+  - 函数
+    - 常用内置函数
+      - 字符串：substr instr split concat concat_ws length
+      - 数字：rand()  round()
+      - 收集函数：collect_set   collect_list    array_contains
+      - 日期函数：day   month   year
+      - 条件：if    case when |  nvl
+      - 炸裂函数：explode
+    - 自定义函数：
+      - 实现，实现哪些功能
+      - UDF UDAF UDTF区别
