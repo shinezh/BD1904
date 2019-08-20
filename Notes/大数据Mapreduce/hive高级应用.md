@@ -101,3 +101,97 @@ source FILE 在hive客户端加载脚本；
 - group by 不和聚合函数一起
 - count(distinct) 数据量大的时候容易数据倾斜
 
+### 典型场景分析
+
+#### join过程
+
+- 大量的关联键为NULL的时候
+
+  users	用户表	UserId
+
+  logs	  日志表	所有用户浏览网站的信息	UserId null
+
+  `select \* from users a join logs b on a.UserId=b.UserId;`
+
+  ```sql
+  map
+  	key:
+  		UserId
+  	value: 标识+其他
+  shuffle:
+  	分区
+  	排序
+  	分组
+  reduce：
+  	一个分区 -- reducetask
+  	null 其他-- 1个reducetask
+  解决方案：
+  1、将null值进行分散到多个reducetask中
+  	null+随机数
+  	select * from users a join logs b on a.userid=nvl(b.userid,b.userid+rand())
+  2、null值不参与关联，最后将null值拼接到最后
+  	select * from users a join
+  	(select * from logs where userid is not null) b
+  	on a.userid=b.userid
+  	union 
+  	select null,null,null,* from logs where userid is null;
+  
+  ```
+
+- 关联键 类型不统一
+
+  users	userId int
+
+  logs	  userId string
+
+  `select * from users a join logs b on a.userid=b.userid` 
+
+  解决方案：修改数据类型，将数据类型统一
+
+- 大数据 * 大数据
+
+  reduce join
+
+  key值分布不均匀，分区数据不均匀，数据倾斜；
+
+  - hive中的所有类型join方法
+
+    - 小\*小  map join
+
+    - 大\*小  map join（小文件《23.8M）
+
+    - 大\*中  内存能够承受，默认执行reduce join，为了效率，也为了解决数据倾斜，强制执行mapjoin
+
+      `/*+mapjoin(需要强制加载到内存中的小表)*/`
+
+      ```sql
+      select 
+      /*+mapjoin(a)*/*
+      from users a join logs b on a.userid=b.userid;
+      ```
+
+    - 大\*大  （两个表都非常大，无法放在内存）
+
+      ```sql
+      users	500G	用户表，每当有一个用户注册就有一条数据
+      logs	1T		日志表，每一个点击行为，一条数据，一天分析一次
+      
+      解决方案：
+      	对其中一个表进行瘦身----users
+      	只需要过滤出logs能够关联的userid
+      	1、求logs表中有哪些userid
+      	select distinct userid from logs;
+      	2、对users表进行瘦身
+      	create table user_final as
+      	select /*+mapjoin(a)*/b.*
+      	from
+      	(select distinct userid from logs) a
+      	join users b on a.userid=b.userid;
+      	3、进行真正的关联
+      	select 
+      	/*+mapjoin(a)*/*
+      	from user_final a join logs b on a.userid=b.userid; 
+      	
+      ```
+
+      
