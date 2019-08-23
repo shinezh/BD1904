@@ -216,16 +216,38 @@
     	put 'bd1904:test_shell','rk001','info1:age','18'
     	put 'bd1904:test_shell','rk001','info2:address','shenzhen'
     
-    #chaxundantiao get
-    
-    #
-    	scan 'user_info',{COLUMNS => ['c1','c2'],STARTROW => '',ENDROW =>'xyz'}
-    	
-    #hbase中查詢數據的方式：
-    	#
-    	#单条数据查询
+    #查询单条数据 get
     	get '表名','行键'
+    	get 'user_info','rk001'
     		#指定版本信息查询，定位一个单元格
+    		get '表名', '行健', {COLUMN => '列族：列', TIMESTAMP => 时间戳}
+    		get "user_info","rk0001",{COLUMN => "base_info:name",TIMESTAMP=> 1565468018012}
+    		
+    #数据扫描   scan
+    	scan 'test_shell'	全表扫描
+    	#指定需要扫描的列
+    	scan 'test_shell',{COLUMS => ['info1:age','info2:name']}
+    	#指定需要扫描的起始行键，从起始键开始扫描
+    	scan "user_info",{COLUMNS => "base_info:name",STARTROW => "rk0001"}
+    	#指定需要扫描的结束行健   
+    	scan 't1', {COLUMNS => ['c1', 'c2'], STARTROW =>"", ENDROW => 'xyz'}
+    eg:
+    	scan "user_info",{COLUMNS => "base_info:age",STARTROW => "rk0001",ENDROW => "zhangsan_20150701_0005"}
+    	
+    	#指定从起始行健开始  需要返回的数据条数    LIMIT=>5 
+    	eg:
+    	scan "user_info",{COLUMNS => ["base_info:name","base_info:age"],LIMIT => 5}
+    	#默认从第一条数据开始扫描的
+    	scan "user_info",{COLUMNS => ["base_info:name","base_info:age"],STARTROW=> "rk0001",LIMIT => 5}
+    
+    	#指定时间戳范围的数据   效率不高  所有时间戳范围内的数据
+    	scan 't1', {COLUMNS => 'c1', TIMERANGE => [1303668804, 1303668904]}
+    	scan "user_info",{COLUMNS => "base_info:age",TIMERANGE => [1565468004512,1565468005371]}
+    	
+    	#hbase中数据查询的方式：
+        1）全表扫描
+        2）指定rowkey范围进行扫描
+        3）单条数据查询
     ```
     
     
