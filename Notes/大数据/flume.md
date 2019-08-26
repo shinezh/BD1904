@@ -132,7 +132,7 @@
 
 - **netcat**：数据来自于主机的网络端口数据
 
-- 一旦指定的主机端口有数据，就会被作为数据源采集
+    - 一旦指定的主机端口有数据，就会被作为数据源采集
 
     ```properties
     agent1.sources.avro-source1.type = netcat
@@ -142,84 +142,179 @@
 
     
 
-- exec UNIX command
+- **exec UNIX command**
 
-- 数据源来自于一个unix命令执行内容的结果
+    - 数据源来自于一个unix命令执行内容的结果
 
-- 监听一个操作文档的内容的命令 执行结果的
-
+    - 监听一个操作文档的内容的命令 执行结果的
     - cat	数据源来自一个文件的所有内容
-    - tail    数据源来自一个文件的部分内容
+        - tail    数据源来自一个文件的部分内容
+
+- **Spooling Directory**   spooldir
+
+  - 数据源来自于一个文件夹下的所有文件 
+
+  ```properties
+  # a1  当前这个agent的名字
+  a1.sources = r1
+  a1.sinks = k1
+  a1.channels = c1
+  
+  # 指定source   来自于端口的
+  a1.sources.r1.type = spooldir
+  a1.sources.r1.spoolDir = /home/hadoop/datas
+  a1.sources.r1.fileSuffix = .finished
+  
+  # 指定channel
+  a1.channels.c1.type = memory
+   
+  # 指定sink的类型  logger 控制台打印
+  a1.sinks.k1.type = logger
+  
+  # 绑定 channel   sink   source 
+  a1.sources.r1.channels = c1
+  a1.sinks.k1.channel = c1
+  ```
+
+- **avro**
+
+    - 数据源来自于  avro port 多agent串联
+    - 一个agent 向另一个agent 发送数据的时候,agent1--avro port-- agent2 
+
+    ```properties
+    案例：
+    规划：
+    agent1  hadoop01   source -- netcat       channel--memory   sink--avro  
+    agent2  hadoop02   source -- avro source  channel--memory   sink--logger 
+    
+    agent1 :
+    # a1  当前这个agent的名字
+    a1.sources = r1
+    a1.sinks = k1
+    a1.channels = c1
+    
+    # 指定source   来自于端口的
+    a1.sources.r1.type = netcat
+    a1.sources.r1.bind = hadoop01
+    a1.sources.r1.port= 44455
+    
+    # 指定channel
+    a1.channels.c1.type = memory
+     
+    # 指定sink的类型  logger 控制台打印
+    a1.sinks.k1.type = avro
+    a1.sinks.k1.hostname = hadoop02
+    a1.sinks.k1.port = 44466
+    
+    # 绑定 channel   sink   source 
+    a1.sources.r1.channels = c1
+    a1.sinks.k1.channel = c1
+    
+    agent2:
+    # a1  当前这个agent的名字
+    a1.sources = r1
+    a1.sinks = k1
+    a1.channels = c1
+    
+    # 指定source   
+    a1.sources.r1.type = avro
+    a1.sources.r1.bind = hadoop02
+    a1.sources.r1.port= 44466
+    
+    # 指定channel
+    a1.channels.c1.type = memory
+     
+    # 指定sink的类型  logger 控制台打印
+    a1.sinks.k1.type = logger
+    
+    # 绑定 channel   sink   source 
+    a1.sources.r1.channels = c1
+    a1.sinks.k1.channel = c1
+    
+    
+    多个agent串联  启动顺序  从后向前
+    先启动agent2:  hadoop02
+    $ ./flume-ng agent --conf conf --conf-file /home/hadoop/app/apache-flume-1.8.0-bin/conf/ex03_agent02_avrosource.conf --name a1 -Dflume.root.logger=INFO,console
+    
+    启动 agent1   hadoop01 
+    $ ./flume-ng agent --conf conf --conf-file /home/hadoop/app/apache-flume-1.8.0-bin/conf/ex03_agent01_avrosink.conf --name a1 -Dflume.root.logger=INFO,console
+    ```
+
+    
+
+### channel类型
+
+- **memory** channel   数据存储内存中
+
+  ```properties
+  a1.channels.c1.type = memory
+  a1.channels.c1.capacity = 10000  memory中存储的数据的最大条数
+  a1.channels.c1.transactionCapacity = 10000  每次提交的数据量
+  ```
+
+- **file** channel  基于磁盘的
+- **jdbc**   数据库
+- **kafka** 
+
+
 
 
 
 ### sink类型
 
-> 指定数据的目标
+- **avro：**指定数据的目标
 
 ```properties
-#hdp03 tail-avro.properties
-a1.sources = r1
-a1.sinks = k1
-a1.channels = c1
+a1.sinks.k1.type = avro 
+a1.sinks.k1.hostname = 指定绑定的主机  一般指定下一个的agenT的主机
+a1.sinks.k1.port= 指定数据存放的端口
+```
 
-# Describe/configure the source
-a1.sources.r1.type = exec
-a1.sources.r1.command = tail -F /home/shineu/data/tmpdata/date.log
-a1.sources.r1.channels = c1
+- **logger：**将结果打印到控制台中
 
-# Describe the sink
-a1.sinks.k1.type = avro
-a1.sinks.k1.channel = c1
-a1.sinks.k1.hostname = hdp04
-a1.sinks.k1.port = 41414
-a1.sinks.k1.batch-size = 2
+- **hdfs：**将结果收集到hdfs中
 
-# Use a channel which buffers events in memory
-a1.channels.c1.type = memory
-a1.channels.c1.capacity = 1000
-a1.channels.c1.transactionCapacity = 100
-
-# Bind the source and sink to the channel
-a1.sources.r1.channels = c1
-a1.sinks.k1.channel = c1
+```properties
+a1.sinks.k1.type = hdfs
+a1.sinks.k1.hdfs.path = 指定hdfs 的路径 
 ```
 
 ```properties
-#hdp04 avro-hdfs.properties
+案例：
+source exec    channel--memory  sink -- hdfs 
+# a1  当前这个agent的名字
 a1.sources = r1
 a1.sinks = k1
 a1.channels = c1
 
-# Describe/configure the source
-a1.sources.r1.type = avro
-a1.sources.r1.channels = c1
-a1.sources.r1.bind = 0.0.0.0
-a1.sources.r1.port = 41414
+# 指定source   来自于端口的
+a1.sources.r1.type = exec
+a1.sources.r1.command = tail -f /home/hadoop/datas/2.txt
 
-# Describe k1
-a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path =hdfs://bd1904/testlog/flume-event/%y-%m-%d/%H-%M
-a1.sinks.k1.hdfs.filePrefix = date_
-a1.sinks.k1.hdfs.maxOpenFiles = 5000
-a1.sinks.k1.hdfs.batchSize= 100
-a1.sinks.k1.hdfs.fileType = DataStream
-a1.sinks.k1.hdfs.writeFormat =Text
-a1.sinks.k1.hdfs.rollSize = 102400
-a1.sinks.k1.hdfs.rollCount = 1000000
-a1.sinks.k1.hdfs.rollInterval = 60
-a1.sinks.k1.hdfs.round = true
-a1.sinks.k1.hdfs.roundValue = 10
-a1.sinks.k1.hdfs.roundUnit = minute
-a1.sinks.k1.hdfs.useLocalTimeStamp = true
-
-# Use a channel which buffers events in memory
+# 指定channel
 a1.channels.c1.type = memory
-a1.channels.c1.capacity = 1000
-a1.channels.c1.transactionCapacity = 100
+ 
+# 指定sink的类型  logger 控制台打印
+a1.sinks.k1.type = hdfs
+a1.sinks.k1.hdfs.path = /flume/data
 
-# Bind the source and sink to the channel
+# 绑定 channel   sink   source 
 a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
+ 
+启动：
+$ ./flume-ng agent --conf conf --conf-file /home/hadoop/app/apache-flume-1.8.0-bin/conf/ex04_hdfs_sink.conf --name a1 -Dflume.root.logger=INFO,console
+
+#hdfs文件：
+FlumeData.1566811391386
+FlumeData.1566811477603.tmp  还没有编辑完成
+
+#文件回滚的条件：
+hdfs.rollInterval	30	30s  0 参数失效
+hdfs.rollSize	1024	文件大小  字节  0 参数失效
+hdfs.rollCount	10	events的数量达到10开始回滚  0 参数失效
+
+#满足一个就可以回滚的
+a1.sinks.k1.hdfs.path = /flume/events/%y-%m-%d/%H%M/%S
 ```
 
