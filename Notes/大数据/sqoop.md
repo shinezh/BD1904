@@ -115,7 +115,7 @@ sqoop export \
 --connect jdbc:mysql://hdp01:3306/sqoopdb  \
 --username root \
 --password mysql \
---table sqoopfur \
+--table cmcc_total \
 --export-dir /user/hadoop/myimport_add \
 --fields-terminated-by ','
 
