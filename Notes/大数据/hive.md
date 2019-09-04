@@ -636,7 +636,7 @@
     INSERT INTO stu_ptn PARTITION(dept="CS") 
     SELECT id,name,sex,age WHERE dept="CS"
     INSERT INTO stu_ptn PARTITION(dept="IS")
-    SELECT id,name,sex,age WHERE dept="CS"
+    SELECT id,name,sex,age WHERE dept="IS"
     ```
 
   ==验证：分区数据的插入方式及分桶表的数据插入方式==
