@@ -109,7 +109,194 @@ Unit 			  --->类似java中的void
 
 ## 3.2. 高级的IDE--Idea/eclipse
 
-略
+### 3.2.1. 安装
+
+​	安装省略
+
+### 3.2.2. 创建项目
+
+​	启动界面
+
+​	![1567473713344](assets/1567473713344.png)
+
+​	配置项
+
+![1567473782416](assets/1567473782416.png)
+
+- java项目
+
+    选择上述create New Project,进入并选择java项，同时制定jdk的JAVA_HOME
+
+    ![1567473936063](assets/1567473936063.png)
+
+    不使用template直接创建
+
+    ![1567474044342](assets/1567474044342.png)
+
+    指定项目存储路径
+
+    ![1567474097196](assets/1567474097196.png)
+
+    创建之后的界面
+
+    ![1567474191375](assets/1567474191375.png)
+
+    创建java的class
+
+    ![1567474236076](assets/1567474236076.png)
+
+    编写内容
+
+    ![1567474364152](assets/1567474364152.png)
+
+    tip：输入主函数的快捷键是--psvm，输入System.out.println()的快捷键是sout
+
+    运行：右键--->Run Application即可。
+
+    ![1567474422228](assets/1567474422228.png)
+
+- scala项目
+
+    1. idea集成scala
+
+        插件下载官网：http://plugins.jetbrains.com,需要注意的是插件的版本必须要和idea的版本保持一致！
+
+        1）在线集成
+
+        点击File，选择settings
+
+        ![1567474600796](assets/1567474600796.png)
+
+        点击plugins，在线查找scala
+
+        ![1567474714721](assets/1567474714721.png)
+
+        安装完毕之后，重启idea生效
+
+        ![1567474882062](assets/1567474882062.png)
+
+        2）离线集成(推荐)
+
+        ![1567474600796](../../../2019-09-03-%5Bscala%5D/%E6%96%87%E6%A1%A3/2019-09-03/assets/1567474600796.png)
+
+        点击plugins，从磁盘加载idea的插件
+
+        ![1567474853683](assets/1567474853683.png)
+
+        安装完毕之后，重启idea生效
+
+        ![1567474882062](assets/1567474882062.png)
+
+        重新创建项目，查看已经有了scala的模块，说明插件安装成功
+
+        ![1567475069879](assets/1567475069879.png)
+
+    2. idea创建scala项目
+
+        选择scala创建项目
+
+        ![1567475279627](assets/1567475279627.png)
+
+        指定scala的sdk目录
+
+        ![1567475366802](assets/1567475366802.png)
+
+        ![1567475428668](assets/1567475428668.png)
+
+        创建scala的object，编写内容
+
+        ![1567475600077](assets/1567475600077.png)
+
+        运行和运行java-class一样
+
+        tip：创建scala的main函数的快捷键是main
+
+- 基于maven构建项目
+
+    1. idea配置maven环境
+
+    ​	因为idea内部已经集成类maven，所以不需要安装插件，只需要做基本配置即可。
+
+    ​	选择settings
+
+    ![1567475734816](assets/1567475734816.png)
+
+    ​	选择maven的路径，配置文件，仓库路径
+
+    ​	![1567475796811](assets/1567475796811.png)
+
+    2. 基于maven创建项目
+
+        选择maven，构建项目
+
+    ![1567475996877](assets/1567475996877.png)
+
+    指定maven的坐标
+
+    ![1567476258277](assets/1567476258277.png)
+
+    指定项目的存储位置
+
+    ![1567476288248](assets/1567476288248.png)
+
+    指定项目的依赖
+
+    ```xml
+    <properties>
+        <scala.version>2.11.8</scala.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+    </dependencies>
+    ```
+
+    创建scala的源代码目录，并指定目录类型为Source root
+
+    ![1567476589235](assets/1567476589235.png)
+
+    新建scala的class时候，不能直接创建，需要进行scala模块的指定--->File--->Project Structure
+
+    ![1567476665336](assets/1567476665336.png)
+
+    指定scala的全局依赖
+
+    ![1567476747505](assets/1567476747505.png)
+
+    编写内容，并运行
+
+    ![1567476846591](assets/1567476846591.png)
+
+    注意：
+
+    1、要求大家在windows中配置MAVEN_HOME/M2_HOME,并将其bin添加到path目录中
+
+    2、建议大家修改一下idea中的默认的配置
+
+    ​	指定Default Settings
+
+    ![1567477031939](assets/1567477031939.png)
+
+    ​	配置修改maven
+
+    ![1567477070488](assets/1567477070488.png)
+
+    tips:idea常用快捷键列表
+
+    ​	https://www.cnblogs.com/JavaBlackHole/p/7673812.html
+
+    3、修改idea的快捷键
+
+    ​	在settings--->keymap中完成指定
+
+    ![1567479151829](assets/1567479151829.png)
+
+    4、将项目的编码统一修改为UTF-8
+
+    ![1567479231322](assets/1567479231322.png)
 
 # 3. Scala基础知识和语法
 
@@ -662,7 +849,6 @@ object _06LoopTerminateDemo {
     ```scala
     /*
     public class Calc {
-    
     	public int add(int a, int b) {
     		return a + b;
     	}
@@ -703,8 +889,9 @@ object _06LoopTerminateDemo {
     	}
     }	
     ```
+    
 
-    ​	这一点不同就体现在，给可变参数传递一个数组，java直接可以传递，而scala不能直接传递一个数组，认为数据类型不匹配(type mismatch)，传递方式需要做稍微的变动==>数组名称: _*
+​	这一点不同就体现在，给可变参数传递一个数组，java直接可以传递，而scala不能直接传递一个数组，认为数据类型不匹配(type mismatch)，传递方式需要做稍微的变动==>数组名称: _*
 
 ## 5.4. 异常和lazy
 
@@ -776,3 +963,368 @@ object _12LazyDemo {
 
 # 6. Scala数组&集合
 
+## 6.1. 数组Array
+
+​	scala中的数组，其实说白了，就是Java的数组，但是需要注意一点的是——所有的scala集合，包括数组一般都有两类，一类是可变的集合，一类不可变的集合。可变指的是经过初始化之后，其中的元素可以进行update、delete、insert操作；而不可变指的是一旦初始化完毕之后，不可以进行update、delete、insert操作。
+
+### 6.1.1. 不可变数组--Array
+
+- 数组的声明
+
+    在scala中使用Array来完成数组的声明，eg：val arr:Array[String]，这样完成了一个数组类型的变量arr的声明，其中在arr数组中存放的数据类型为String
+
+- 数组的初始化
+
+    1. 创建数组对象
+
+        > ```
+        > val arr:Array[String] = new Array[String](3)
+        > println(arr)
+        > val arr1 = new Array[Int](3)
+        > println(arr1)
+        > ```
+
+        上述创建了两个数组，分别指定了数组长度，其中如果类型为引用型数据类型，其默认值为null，如果为基本数据类型，比如Int，默认值为0。
+
+    2. 使用数组的伴生对象创建
+
+        ```scala
+        //使用数组类的伴生对象
+        val arr2 = Array[Int](1, 2, 3, 4)
+        println(arr2)
+        val arr3 = Array(1, 2, 3.0, 4)//类型推断
+        println(arr3)
+        ```
+
+- 数组的操作
+
+    ```scala
+    val arr = Array("heihei", "haha", "hehe", "shit")
+    //获取数组的元素，使用下标索引，在java中arr[index],scala中所有的下标索引引用一律使用(index)
+    val first = arr(0)
+    println(first)
+    //新增 删除 ×
+    //修改
+    arr(0) = "iehieh"
+    println(arr(0))
+    //遍历
+    for(str <- arr) {
+        println(str)
+    }
+    ```
+
+### 6.1.2. 可变数组--ArrayBuffer
+
+​	上一个案例中的数组是定长，无法进行扩容，所以就需要使用另外一个结构——ArrayBuffer，类似java中的ArrayList。
+
+- 声明
+
+    和数组的声明一样，也有两种：
+
+    1. 使用new创建对象
+
+        ```scala
+        val ab:ArrayBuffer[Int] = new ArrayBuffer[Int]()
+        ```
+
+    2. 使用伴生对象创建
+
+        ```scala
+        //使用伴生对象创建
+        val ab2 = ArrayBuffer[Int]()
+        println(ab2)
+        ```
+
+- 初始化
+
+    ```scala
+    val ab2 = ArrayBuffer[Int](1, 2, 3) //如果只写一个数字，代表初始化数组长度，多个值代表初始化数组内容
+    println(ab2)
+    ```
+
+- 操作
+
+    1. 增
+
+        ```scala
+        ab.append(4)//在数组末尾添加一个元素
+        println("添加一个元素之后的数组内容：" + ab)
+        ab += 5 //在数组末尾添加一个元素
+        println("添加一个元素之后的数组内容：" + ab)
+        //插入元素
+        ab.insert(3, -3, -4)
+        println("在index为3的值为插入一个元组之后的数组内容：" + ab)
+        //添加一个集合
+        val newAb = ab.++(Array(6, 7, 8))//返回一个新的数组
+        println("添加一个集合之后的数组内容：" + newAb)
+        ab ++= Array(6, 7, 8)//追加一个集合
+        println("添加一个集合之后的数组内容：" + ab)
+        ```
+
+    2. 改
+
+        ab(index) = 新增
+
+    3. 删
+
+        ```sca
+        newAb = ab.drop(2)//删除前N个元素并返回一个新的数组，原数组不变
+        println("ab.drop(2)之后的数组内容：" + newAb)
+        newAb = ab.dropRight(2)//从后往前删除N个元素，并返回一个新的数组，原数组不变
+        println("ab.dropRight(2)之后的数组内容：" + newAb)
+        
+        val ret = ab.remove(3)//删除指定索引位置上元素，并返回
+        println("ret: " + ret)
+        println("ab.remove(3)之后的数组内容：" + ab)
+        ab.remove(3, 2)//从指定索引位置开始删除n个元素
+        println("ab.remove((3, 2)之后的数组内容：" + ab)
+        ```
+
+    4. 查
+
+        和Array一样，ab(index)即可
+
+    5. 遍历
+
+        1) 普通遍历
+
+        ```scala
+        for(i <- ab) {
+            print(i + "\t")
+        }
+        ```
+
+        2) foreach遍历
+
+        ```scala
+        ab.foreach(num => println(num))
+        ```
+
+### 6.1.3. Array和ArrayBuffer之间的互相转化
+
+- java中的Array和List之间的互换
+
+    1. Array --->List
+
+        Arrays.asList(arr)
+
+    2. List ---> Array
+
+        list.toArray(new T[list.size()])
+
+- scala中的Array和ArrayBuffer之间的互换
+
+    1. Array ---> ArrayBuffer
+
+        array.toBuffer
+
+    2. ArrayBuffer ---> Array
+
+        ab.toArray
+
+## 6.2. 集合
+
+### 6.2.1. Map
+
+​	就是一对键值映射的集合。
+
+#### 6.2.1.1 不可变Map
+
+​	一旦创建完毕之后，便无法进行修改。
+
+- 声明并初始化
+
+    一般都用map的伴生对象进行创建，eg,创建一个Map，需要指定k和v的类型
+
+    1. 声明
+
+        ```scala
+        val map = Map[Int, String]()
+        ```
+
+    2. 初始化
+
+        ```scala
+        var map = Map[Int, String](
+            1 -> "王俊强",
+            2 -> "王蕾蕾"
+        )
+        println(map)
+        map = Map[Int, String](
+            (3 -> "赵安琦"),
+            (4 -> "随国强")
+        )
+        println(map)
+        ```
+
+- 操作
+
+    1. 获取
+
+        ```scala
+        val value = map(2)//如果key不存在，会报错
+        println("value: " + value)
+        val valueOption = map.get(2)//get操作返回可能存在的值，存在返回为Some(值)，不存在返回None
+        println("option: " + valueOption)
+        //如果option有值，获取其中的值
+        val name = valueOption.get
+        println("name: " + name)
+        ```
+
+    2. 判断
+
+        contains(key)判断map中是否存在key
+
+        ```sc
+        //判断
+        val key = 2
+        if(map.contains(key)) {
+        val ret = map(key)
+        println("ret: " + ret)
+        }
+        //使用get的方式获取之
+        val ret = map.getOrElse(key, "old李") //常见的使用方式，如果key存在，获取对应的值，不存在返回后面的默认值
+        println("ret: " + ret)
+        ```
+
+    3. 修改
+
+        因为是不可变map，所以值无法被修改
+
+    4. 新增
+
+        按理不可变map，是无法新增键值对，但是通过代码发现，可以新增
+
+        tips: 如果不可变的map的类型时val，不可以新增，只有类型声明为var才可以新增
+
+        ```scala
+        map += (5 -> "old李")
+        ```
+
+    5. 删除
+
+        map.drop(n),从头删除n个k-v键值对，并返回一个新的map，原map没有被改变
+
+        ```scala
+        val newMap = map.drop(1)
+        ```
+
+#### 6.2.1.2 可变Map
+
+​	所谓可变map就是，创建完一个map之后，增删改查都可以进行操作。
+
+- 声明与初始化
+
+    声明：
+
+    ```scala
+    val map = scala.collection.mutable.Map[Int, String]()
+    或者
+    val map = mutable.Map[Int, String]()//需要导包 import scala.collection.mutable
+    ```
+
+    初始化：
+
+    ```scala
+    val map = scala.collection.mutable.Map[Int, String](5->"old")
+    ```
+
+- 操作
+
+    1. 新增
+
+        ```sca
+        map(2) = "王宇东"
+        map += (3 -> "姜雷")
+        ```
+
+    2. 修改
+
+        ```scala
+        map(2) = "严文青"
+        ```
+
+        tips: 如果key存在，map(key)=value就是修改，反之则为新增
+
+    3. 遍历
+
+        ```scala
+        for((key, value) <- map) {
+            println(s"key: $key, value: $value")
+        }
+        println("------------")
+        //foreach
+        map.foreach(kv => {
+            println(s"key: ${kv._1}, value: ${kv._2}")
+        })
+        ```
+
+### 6.2.2. Tuple元组!!!
+
+- 定义
+
+       映射是键／值对偶的集合。对偶是元组(tuple)的最简单形态，元组是不同类型的值的聚集。元组的值是通过将单个的值包含在圆括号中构成的。例如：(1, 3.14, "Fred")是一个元组，类型为：
+
+    Tuple3[Int, Double, java.lang.String]
+
+- 声明与初始化
+
+    ​	元组tuple长度是有范围[1, 22],也就是说一个元组的长度最小1，最大22，分别是不不同的类来描述，比如只有一个元素的元组声明为Tuple，2个元素的元组声明Tuple2，...,22个元素的元组声明为Tuple22。
+
+    ​	从定义中可以知晓，以后但凡遇到是()中包含的一组之，其整体类型为元组。
+
+    1. 声明
+
+    ​	声明一个长度为2的元组，类型分别为Int和String
+
+    ```scala
+    val tuple = new Tuple2[Int, String]()
+    ```
+
+     	2. 初始化
+
+    ```scala
+    val tuple = new Tuple2[Int, String](1, "zhangsan")
+    或者
+    val tuple = new Tuple2(1, "zhangsan")
+    ```
+
+- 操作
+
+    1. 访问
+
+        如何访问元组中的元素呢？
+
+        使用元组名._索引（**但是索引从1开始**）
+
+        ```scala
+        val tuple = new Tuple2[Int, String](1, "zhangsan")
+        //获取第一个元组
+        val id = tuple._1
+        val name = tuple._2
+        println("id: " + id + "--> name: " + name)
+        
+        val tuple4 = new Tuple4("spring", "summer", "autumn", "winter")
+        val spring1 = tuple4._1
+        println("spring: " + spring1)
+        //上述更加简洁的写法 类型推断+变量命名
+        val (spring, summer, autumn, winter) = new Tuple4("spring", "summer", "autumn", "winter")
+        println("autumn: " + autumn)
+        //最简单的写法 ()中意的值的序列就是元组
+        val (spring2, summer2, autumn2, winter2) = ("spring", "summer", "autumn", "winter")
+        println("autumn2: " + autumn2)
+        ```
+
+    2. 遍历
+
+        因为元组并没有直接实现Iterable接口，所以不能直接进行遍历，需要使用其中的一个方法productIterator生成一个迭代器之后才可以进行遍历
+
+        ```scala
+        for(t <- tuple4.productIterator) {
+            println(t)
+        }
+        ```
+
+        
+
+    
