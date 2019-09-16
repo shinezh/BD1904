@@ -143,15 +143,291 @@
 
 
 
+##### groupByKey
 
+1. 说明\- aggregateByKey
+
+
+
+
+
+
+
+##### aggregateByKey
+
+- **说明：**
+
+- **总结：**如果是对相同类型的数据进行聚合统计，倾向于使用aggregateByKey更为简单，但是如果聚合前后数据类型不一致，建议使用combineByKey；如果初始化操作较为复杂，也建议使用`combineByKey`
 
 
 
 #### 2.2.2 action行动算子
 
+> 所有的这些算子都是在rdd上的partition上执行的，不是在driver本地执行的；
+
+##### foreach
 
 
 
 
-#### 2.2.3 持久化
+
+##### count
+
+##### take
+
+> 如果rdd的数据是有序的，那么take(n)就是TopN
+
+##### first
+
+> take(n)中比较特殊的一个take(1)
+
+##### collect
+
+> 字面意思就是收集，
+
+
+
+##### reduce
+
+> reduce是一个action操作，reduceByKey是一个transformation，reduce是对rdd执行聚合操作，返回一个值
+
+```scala
+
+```
+
+
+
+##### countByKey
+
+> 统计key出现的次数
+
+
+
+##### saveAsTextFile
+
+> 本质上是`saveAsHadoopFile()`
+
+
+
+##### saveAsHadoopFile
+
+##### saveAsNewHadoopFile
+
+> 这两者的主要区别就是`outputformat`的区别；
+
+```scala
+//接口
+org.apache.hadoop.mapred.OutPutFormat
+//抽象类
+org.apache.hadoop.mapreduce.OutPutFormat
+//建议使用抽象类
+```
+
+
+
+##### saveAsObjectFile和saveAsSequenceFile
+
+#### 2.2.3 持久化操作
+
+##### 什么是持久化
+
+##### 如何进行持久化
+
+> 持久化的方法就是`rdd.persist()`或者`rdd.cache()`
+
+##### 持久化策略
+
+> 可以通过`persist(StoreageLevle的对象)`来制定持久化策略
+
+| 持久化策略          | 含义                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| MEMORY_ONLY（默认） | rdd中的数据，以未经序列号的java对象格式，存储在内存中，如果内存不足，那就剩余部分不持久化。使用的时候，未持久化的部分重新加载；这种效率最高，但是是对内存要求最高； |
+| MEMORY_ONLY_SER     | 比`MEMORY_ONLY`多了一个ser序列化，保存在内存中的数据是经过序列化之后的字节数组，同时每一个Partition此时就是一个比较大的字节数组； |
+| MEMORY_AND_DISK     | 和`MEMORY_ONLY`相比，内存若存储不下，则存储到磁盘中；        |
+| MEMORY_AND_DISK_SER | 和`MEMORY_AND_DISK`相比，多了序列化                          |
+| DISK_ONLY           | 都保存在磁盘，效率太低，一般不用                             |
+| xxx_2               | 就是上述策略后面加了一个\_2，就多了一个`replicate`(备份)，所以性能会下降；但是容错或者高可用加强了；所以需要再二者之间做权衡；如果说要求数据备份高可用，同时容错的时间花费比重新计算小，此时可以使用，否则一般不用； |
+| HEAP_OFF            | 使用非Spark的内存，也即堆栈内存；比如`Tachyon、Hbase`等内存，来补充Spark数据的缓存； |
+
+##### 如何选择
+
+- 首选默认，但是对空间要求较高；
+- 如果空间满足不了，退而求其次，选择`MEMORY_ONLY_SER`，此时性能还是蛮高的；
+- 如果内存满足不了，选择`MEMORY_AND_DISK_SER`，因为走到这一步，说明数据蛮大的，要想提高性能，关键是就是基于内存的计算，所以应该尽可能在内存在存储数据；
+
+#### 持久化和非持久化的差异
+
+> 持久化后效率更高
+
+
+
+### 2.3 共享变量
+
+#### 2.3.1 boradcast广播变量
+
+> 原先为每一个task都拷贝一份变量，此时将num包装成一个广播变量，只需要在executor中拷贝一份，
+
+```scala
+val num:Any = xxx
+val numBC:Broadcast[Any] = sc.broadcast(num)
+//调用
+val n = numBC.value
+//需要注意的一点，显然num需要进行序列化
+```
+
+```scala
+object _02BroadCast {
+	def main(args: Array[String]): Unit = {
+		val conf = new SparkConf()
+			.setAppName("ActionSpark")
+			.setMaster("local[*]")
+
+		val sc = new SparkContext(conf)
+
+		val genderMap=Map(
+			"0" -> "Girl",
+			"1" -> "Boy"
+		)
+
+		val stuRDD =sc.parallelize(List(
+			Student("01","白普州","0",18),
+			Student("02","伍齐城","0",19),
+			Student("03","曹小佳","1",19),
+			Student("04","刘文浪","1",20)
+		))
+		stuRDD.map(stu => {
+			val gender = stu.gender
+			Student(stu.id,stu.name,genderMap.getOrElse(gender,"ladyBoy"),stu.age)
+		}).foreach(println)
+
+		println("==========\n使用广播变量=============")
+		val genderBC:broadcast.Broadcast[Map[String, String]] = sc.broadcast(genderMap)
+		stuRDD.map(stu => {
+			val gender = genderBC.value.getOrElse(stu.gender,"ladyBoy")
+			Student(stu.id,stu.name,gender,stu.age)
+		}).foreach(println)
+
+		sc.stop()
+	}
+}
+
+case class Student(id:String,name:String,gender:String,age:Int)
+```
+
+
+
+#### 2.3.2 accumulator累加器
+
+- **说明：**accumulator累加器的概念和mr中出现的counter计数器的概念有异曲同工之妙，对默认具备某些特征的数据进行累加；累加器的一个好处是，不需要修改程序的业务逻辑来完成数据累加，同时也不需要额外的触发一个action job来完成一个累加；反之，必须要添加新的业务逻辑，必须要出发一个新的action job来完成；显然这个accumulator的操作性能更佳 ；
+
+- **使用**
+
+    ```scala
+    //构建一个累加器
+    val accu = sc.longAccumulator()
+    ```
+
+    
+
+- **注意**
+
+    - 累加器的调用，必须在action触发之后
+
+    - 多次使用同一个累加器，应该尽量做到用完即重置
+
+        `accumulator.reset()`
+
+    - 尽量给累加器指定name，方便在web-ui上面查看；
+
+    - 如果有多个累加器，则应该使用**自定义累加器**；
+
+    ```scala
+    import org.apache.spark.util.AccumulatorV2
+    import scala.collection.mutable
+    
+    /**
+      * 自定义累加器
+      * IN 指的是accmulator.add(sth.)中sth.类型
+      * OUT 指的是value返回值的类型
+      */
+    class MyAccumulator extends AccumulatorV2[String,Map[String,Long]]{
+    
+        private var map = mutable.Map[String,Long]()
+    
+        /**
+    	  * 当前累加器是否有初始化
+    	  * 如果为一个long值，则0为初始化值;list -》 Nil ；map -》 Map（）
+    	  * @return
+    	  */
+        override def isZero: Boolean = true
+    
+        override def copy(): AccumulatorV2[String, Map[String, Long]] ={
+            val accu = new MyAccumulator
+            accu.map = this.map
+            accu
+        }
+    
+        override def reset(): Unit = map.clear()
+    
+        /**
+    	  * 分区类累加
+    	  * @param word
+    	  */
+        override def add(word: String): Unit = {
+            if(map.contains(word)){
+                val newWord = map(word)+1
+                map.put(word,newWord)
+            }
+            else {
+                map.put(word,1)
+            }
+    
+        }
+        /**
+    	  * 分区间累加
+    	  * @param other
+    	  */
+        override def merge(other: AccumulatorV2[String, Map[String, Long]]): Unit = {
+            other.value.foreach{case (word,count) =>
+                map.put(word,map.getOrElse(word,1))
+            }
+        }
+    
+        override def value: Map[String, Long] = map.toMap
+    }
+    ```
+
+    
+
+
+
+## 3. 高级排序
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
