@@ -169,7 +169,7 @@ redis-server /etc/redis.conf
 
 ```shell
 #存储数据
-	hset key filed value
+	hset key feild value
 	hmset key filed value [filed value..]
 	hsetnx keyi filed value     #若某字段无值，则设置值
 #获取数据
