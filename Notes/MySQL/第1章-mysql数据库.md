@@ -174,7 +174,7 @@ DROP DATABASE IF EXISTS db1904
 
    - 表结构的查询：
      
-	  - DESC table_nmae      #查询表结构
+	  - DESC table_name      #查询表结构
    
 	  - 表结构增加新列
 
